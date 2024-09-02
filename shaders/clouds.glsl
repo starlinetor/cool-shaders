@@ -1,28 +1,23 @@
-#version 330 core
+#version 100
+
+#ifdef GL_ES
+precision mediump float;
+#endif
 
 #define PI 3.14159265359
-
-out vec4 glFragColor;
 
 uniform vec2 u_resolution;
 uniform float u_time;
 
-vec3 color1 = vec3(0, 0, 0);
-vec3 color2 = vec3(171, 235, 255);
 vec3 color3 = vec3(61, 101, 145);
 vec3 color4 = vec3(90, 128, 151);
 vec2 sp;
 
-float noiseSpeed = 10000;
-float fmbSpeed = 30000;
+float noiseSpeed = 10.0;
+float fmbSpeed = 30.0;
 
 float RGBRange = 255.0;
-int pixelSize = 5;
-
-float plot(vec2 st, float pct){
-    return  smoothstep( pct-0.02, pct, st.y) -
-    smoothstep( pct, pct+0.02, st.y);
-}
+float pixelSize = 5.0;
 
 float random (vec2 st) {
     return fract(sin(dot(st.xy,
@@ -59,7 +54,7 @@ float fbm (in vec2 st) {
     // Initial values
     float value = 0.0;
     float amplitude = .5;
-    float frequency = 0.;
+    float frequency = 0.1;
     //
     // Loop of octaves
     for (int i = 0; i < OCTAVES; i++) {
@@ -73,8 +68,8 @@ float fbm (in vec2 st) {
 
 void main() {
     //    making the game pixelized
-    sp.x = int(gl_FragCoord.x) % pixelSize;
-    sp.y = int(gl_FragCoord.y) % pixelSize;
+    sp.x = mod(gl_FragCoord.x , pixelSize);
+    sp.y = mod(gl_FragCoord.y , pixelSize);
 
     sp.x = floor(pixelSize / 2.0) - sp.x;
     sp.y = floor(pixelSize / 2.0) - sp.y;
@@ -88,9 +83,9 @@ void main() {
     float clouds = smoothstep(0.4, 1.0, st.y) * 0.8;
     vec2 cp = st + vec2(u_time / noiseSpeed, 0.0);
     float rnd = noise(cp * 7.5);
-    float fbm = fbm((st + vec2(u_time / fmbSpeed, 0.0)) * 6);
+    float fbm = fbm((st + vec2(u_time / fmbSpeed, 0.0)) * 6.0);
 
 
     vec3 color = (vec3(rnd) * clouds * fbm) + mix(color3 / RGBRange, color4 / RGBRange, st.y);
-    glFragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(color, 1.0);
 }
